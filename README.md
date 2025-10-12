@@ -16,37 +16,39 @@ Helper scripts for migrating issues between Jira and Linear. These tools use the
 
 Follow these steps to migrate issues from Jira to Linear and back:
 
+**Phase 1: Jira → Linear Migration**
+
 ```mermaid
 graph LR
-    subgraph Phase1["Phase 1: Jira → Linear Migration"]
-        direction LR
-        Start([Start:<br/>Jira with Epics]) --> Step1[1. Label Bugs<br/>label-bugs.sh]
-        Step1 --> Step2[2. Manually add<br/>IssueTypeEpic labels]
-        Step2 --> Step3[3. Add parent labels<br/>add-parent-labels.sh]
-        Step3 --> Step4[4. Convert Epics to Tasks<br/>convert-epic-to-task.sh]
-        Step4 --> BrokenJira([Jira with Tasks<br/>⚠️ Broken hierarchy])
-        BrokenJira --> Step5[5. Linear Import]
-        Step5 --> Linear([Linear<br/>with Tasks])
-        Linear --> Step6[6. Link parent/child<br/>link-parent-and-child.sh]
-        Step6 --> LinearDone([Linear with hierarchy<br/>✓ Ready to use])
-    end
+    Start([Start: Jira with Epics]) --> Step1[1. Label Bugs]
+    Step1 --> Step2[2. Add IssueTypeEpic labels]
+    Step2 --> Step3[3. Add parent labels]
+    Step3 --> Step4[4. Convert Epics to Tasks]
+    Step4 --> BrokenJira([Jira: Tasks<br/>⚠️ Broken hierarchy])
+    BrokenJira --> Step5[5. Linear Import]
+    Step5 --> Linear([Linear: Tasks])
+    Linear --> Step6[6. Link parent/child]
+    Step6 --> LinearDone([Linear<br/>✓ Ready to use])
 
-    subgraph Phase2["Phase 2: Restore Jira Hierarchy"]
-        direction LR
-        Step7[7. Restore Jira hierarchy] --> Step8[8. Convert Tasks to Epics<br/>convert-task-to-epic.sh]
-        Step8 --> Step9[9. Re-link Epics/children<br/>link-children-to-epic.sh]
-        Step9 --> End([End:<br/>Jira with Epics<br/>✓ Restored])
-    end
+    style Start fill:#e1f5ff,stroke:#0288d1
+    style BrokenJira fill:#ffe6e6,stroke:#d32f2f
+    style Linear fill:#fff4e6,stroke:#f57c00
+    style LinearDone fill:#e8f5e9,stroke:#388e3c
+    style Step5 fill:#f5f5f5,stroke:#757575
+```
 
-    Phase1 -.-> Phase2
+**Phase 2: Restore Jira Hierarchy (Optional)**
 
-    style Start fill:#e1f5ff
-    style BrokenJira fill:#ffe6e6
-    style Linear fill:#fff4e6
-    style LinearDone fill:#e8f5e9
-    style End fill:#e8f5e9
-    style Step5 fill:#f0f0f0
-    style Step7 fill:#f0f0f0
+```mermaid
+graph LR
+    Start2([Broken Jira]) --> Step7[7. Restore Jira hierarchy]
+    Step7 --> Step8[8. Convert Tasks to Epics]
+    Step8 --> Step9[9. Re-link Epics & children]
+    Step9 --> End([Jira with Epics<br/>✓ Restored])
+
+    style Start2 fill:#ffe6e6,stroke:#d32f2f
+    style End fill:#e8f5e9,stroke:#388e3c
+    style Step7 fill:#f5f5f5,stroke:#757575
 ```
 
 ### Phase 1: Prepare Jira issues for Linear migration
