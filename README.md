@@ -17,20 +17,20 @@ Helper scripts for migrating issues between Jira and Linear. These tools use the
 Follow these steps to migrate issues from Jira to Linear and back:
 
 ```mermaid
-graph TB
-    Start([Start: Jira with Epics]) --> Step1[1. Label Bugs<br/>label-bugs.sh]
+graph LR
+    Start([Start:<br/>Jira with Epics]) --> Step1[1. Label Bugs<br/>label-bugs.sh]
     Step1 --> Step2[2. Manually add<br/>IssueTypeEpic labels]
     Step2 --> Step3[3. Add parent labels<br/>add-parent-labels.sh]
     Step3 --> Step4[4. Convert Epics to Tasks<br/>convert-epic-to-task.sh]
     Step4 --> BrokenJira([Jira with Tasks<br/>⚠️ Broken hierarchy])
     BrokenJira --> Step5[5. Linear Import]
-    Step5 --> Linear([Linear with Tasks])
+    Step5 --> Linear([Linear<br/>with Tasks])
     Linear --> Step6[6. Link parent/child<br/>link-parent-and-child.sh]
     Step6 --> LinearDone([Linear with hierarchy<br/>✓ Ready to use])
     LinearDone -.-> Step7[7. Restore Jira hierarchy]
     Step7 --> Step8[8. Convert Tasks to Epics<br/>convert-task-to-epic.sh]
     Step8 --> Step9[9. Re-link Epics/children<br/>link-children-to-epic.sh]
-    Step9 --> End([End: Jira with Epics<br/>✓ Restored])
+    Step9 --> End([End:<br/>Jira with Epics<br/>✓ Restored])
 
     style Start fill:#e1f5ff
     style BrokenJira fill:#ffe6e6
