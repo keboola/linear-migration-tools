@@ -17,7 +17,7 @@ Helper scripts for migrating issues between Jira and Linear. These tools use the
 Follow these steps to migrate issues from Jira to Linear and back:
 
 ```mermaid
-graph TB
+graph LR
     subgraph Phase1["Phase 1: Jira → Linear Migration"]
         direction LR
         Start([Start:<br/>Jira with Epics]) --> Step1[1. Label Bugs<br/>label-bugs.sh]
@@ -38,7 +38,7 @@ graph TB
         Step9 --> End([End:<br/>Jira with Epics<br/>✓ Restored])
     end
 
-    LinearDone -.-> Step7
+    Phase1 -.-> Phase2
 
     style Start fill:#e1f5ff
     style BrokenJira fill:#ffe6e6
