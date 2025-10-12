@@ -42,7 +42,7 @@ check_acli_installed() {
 
 get_bug_issues() {
     local project_key="$1"
-    local bug_issues=$(acli jira workitem search --jql "project = $project_key AND issuetype = Bug and (labels is EMPTY OR labels NOT IN (Bug))" --paginate --json | jq -r '.[].key')
+    local bug_issues=$(acli jira workitem search --jql "project = $project_key AND issuetype = Bug and (labels is EMPTY OR labels NOT IN (Bug)) and statusCategory NOT IN (Done)" --paginate --json | jq -r '.[].key')
     echo "$bug_issues"
 }
 
@@ -50,26 +50,26 @@ add_bug_label() {
     local issue_key="$1"
 
     if [ "$DRY_RUN" = true ]; then
-        echo "[DRY RUN] Would add 'Bug' label to $issue_key"
+        echo "  [DRY RUN] Would add 'Bug' label to $issue_key"
     else
-        echo "Adding 'Bug' label to $issue_key..."
+        echo "  Adding 'Bug' label to $issue_key..."
         acli jira workitem edit --key "$issue_key" --labels "Bug" --yes
+        echo "  ✓ Added 'Bug' label to $issue_key"
     fi
 }
 
 main() {
     check_acli_installed
 
-    echo "Searching for Bug issues in project $PROJECT_KEY..."
     bug_issues=$(get_bug_issues "$PROJECT_KEY")
 
     if [ -z "$bug_issues" ]; then
         echo "No Bug issues found in project $PROJECT_KEY"
     else
-        echo "Found Bug issues:"
-        echo "$bug_issues"
+        local count=$(echo "$bug_issues" | wc -l | tr -d ' ')
+        echo "Found $count Bug issue(s) in project $PROJECT_KEY"
+        echo ""
 
-        echo "Adding 'Bug' labels to issues..."
         while IFS= read -r issue_key; do
             if [ -n "$issue_key" ]; then
                 add_bug_label "$issue_key"
@@ -77,7 +77,8 @@ main() {
         done <<< "$bug_issues"
     fi
 
-    echo "Bug labeling completed successfully!"
+    echo ""
+    echo "Bug labeling completed!"
 }
 
 main

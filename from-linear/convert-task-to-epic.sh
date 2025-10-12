@@ -50,44 +50,35 @@ convert_to_epic() {
     local issue_key="$1"
 
     if [ "$DRY_RUN" = true ]; then
-        echo "[DRY RUN] Would convert issue $issue_key to Epic"
+        echo "  [DRY RUN] Would convert $issue_key to Epic"
     else
-        echo "Converting issue $issue_key to Epic..."
+        echo "  Converting $issue_key to Epic..."
         acli jira workitem edit --key "$issue_key" --type "Epic" --yes
+        echo "  ✓ Converted $issue_key to Epic"
     fi
-}
-
-process_epic_candidate() {
-    local issue_key="$1"
-
-    echo "Processing Epic candidate: $issue_key"
-
-    # Convert issue to Epic
-    convert_to_epic "$issue_key"
 }
 
 main() {
     check_acli_installed
 
-    echo "Searching for issues with label 'IssueTypeEpic' in project $PROJECT_KEY..."
     epic_candidates=$(get_epic_candidate_issues "$PROJECT_KEY")
 
     if [ -z "$epic_candidates" ]; then
         echo "No issues with label 'IssueTypeEpic' found in project $PROJECT_KEY"
     else
-        echo "Found Epic candidates in project $PROJECT_KEY:"
-        echo "$epic_candidates"
+        local count=$(echo "$epic_candidates" | wc -l | tr -d ' ')
+        echo "Found $count issue(s) with label 'IssueTypeEpic' in project $PROJECT_KEY"
         echo ""
 
         while IFS= read -r issue_key; do
             if [ -n "$issue_key" ]; then
-                process_epic_candidate "$issue_key"
-                echo ""
+                convert_to_epic "$issue_key"
             fi
         done <<< "$epic_candidates"
     fi
 
-    echo "Epic conversion completed successfully!"
+    echo ""
+    echo "Epic conversion completed!"
 }
 
 main

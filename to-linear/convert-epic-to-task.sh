@@ -42,7 +42,7 @@ check_acli_installed() {
 
 get_epics_in_project() {
     local project_key="$1"
-    local epics=$(acli jira workitem search --jql "project = $project_key AND issuetype = Epic" --paginate --json | jq -r '.[].key')
+    local epics=$(acli jira workitem search --jql "project = $project_key AND issuetype = Epic AND statusCategory NOT IN (Done)" --paginate --json | jq -r '.[].key')
     echo "$epics"
 }
 
@@ -51,35 +51,35 @@ convert_epic_to_task() {
     local issue_key="$1"
 
     if [ "$DRY_RUN" = true ]; then
-        echo "[DRY RUN] Would convert Epic $issue_key to Task"
+        echo "  [DRY RUN] Would convert $issue_key to Task"
     else
-        echo "Converting Epic $issue_key to Task..."
+        echo "  Converting $issue_key to Task..."
         acli jira workitem edit --key "$issue_key" --type "Task" --yes
+        echo "  ✓ Converted $issue_key to Task"
     fi
 }
 
 main() {
     check_acli_installed
 
-    echo "Getting all Epics in project $PROJECT_KEY..."
     epics=$(get_epics_in_project "$PROJECT_KEY")
 
     if [ -z "$epics" ]; then
         echo "No Epics found in project $PROJECT_KEY"
     else
-        echo "Found Epics in project $PROJECT_KEY:"
-        echo "$epics"
+        local count=$(echo "$epics" | wc -l | tr -d ' ')
+        echo "Found $count Epic(s) in project $PROJECT_KEY"
         echo ""
 
         while IFS= read -r epic_key; do
             if [ -n "$epic_key" ]; then
                 convert_epic_to_task "$epic_key"
-                echo ""
             fi
         done <<< "$epics"
     fi
 
-    echo "Epic conversion completed successfully!"
+    echo ""
+    echo "Epic conversion completed!"
 }
 
 main

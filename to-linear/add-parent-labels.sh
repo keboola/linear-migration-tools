@@ -53,7 +53,7 @@ is_epic() {
 
 get_epics_in_project() {
     local project_key="$1"
-    local epics=$(acli jira workitem search --jql "project = $project_key AND issuetype = Epic" --paginate --json | jq -r '.[].key')
+    local epics=$(acli jira workitem search --jql "project = $project_key AND issuetype = Epic AND statusCategory NOT IN (Done)" --paginate --json | jq -r '.[].key')
     echo "$epics"
 }
 
@@ -68,10 +68,11 @@ add_parent_label() {
     local parent_key="$2"
 
     if [ "$DRY_RUN" = true ]; then
-        echo "[DRY RUN] Would add parent label 'parentIs$parent_key' to $child_key"
+        echo "  [DRY RUN] Would add 'parentIs$parent_key' label to $child_key"
     else
-        echo "Adding parent label to $child_key..."
+        echo "  Adding 'parentIs$parent_key' label to $child_key..."
         acli jira workitem edit --key "$child_key" --labels "parentIs$parent_key" --yes
+        echo "  ✓ Added label to $child_key"
     fi
 }
 
@@ -83,16 +84,16 @@ process_epic() {
         return
     fi
 
-    echo "Processing Epic $epic_key. Getting child issues..."
+    echo "Processing Epic: $epic_key"
+
     local child_issues=$(get_child_issues "$epic_key")
 
     if [ -z "$child_issues" ]; then
-        echo "No child issues found for Epic $epic_key"
+        echo "  No child issues found"
     else
-        echo "Found child issues for $epic_key:"
-        echo "$child_issues"
+        local count=$(echo "$child_issues" | wc -l | tr -d ' ')
+        echo "  Found $count child issue(s)"
 
-        echo "Adding parent labels to child issues..."
         while IFS= read -r child_key; do
             if [ -n "$child_key" ]; then
                 add_parent_label "$child_key" "$epic_key"
@@ -104,14 +105,13 @@ process_epic() {
 main() {
     check_acli_installed
 
-    echo "Getting all Epics in project $PROJECT_KEY..."
     epics=$(get_epics_in_project "$PROJECT_KEY")
 
     if [ -z "$epics" ]; then
         echo "No Epics found in project $PROJECT_KEY"
     else
-        echo "Found Epics in project $PROJECT_KEY:"
-        echo "$epics"
+        local epic_count=$(echo "$epics" | wc -l | tr -d ' ')
+        echo "Found $epic_count Epic(s) in project $PROJECT_KEY"
         echo ""
 
         while IFS= read -r epic_key; do
@@ -122,7 +122,7 @@ main() {
         done <<< "$epics"
     fi
 
-    echo "Parent labels processing completed successfully!"
+    echo "Parent labels processing completed!"
 }
 
 main
