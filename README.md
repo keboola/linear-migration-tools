@@ -22,21 +22,21 @@ graph TB
     Step1 --> Step2[2. Manually add<br/>IssueTypeEpic labels]
     Step2 --> Step3[3. Add parent labels<br/>add-parent-labels.sh]
     Step3 --> Step4[4. Convert Epics to Tasks<br/>convert-epic-to-task.sh]
-    Step4 --> Step5[5. Linear Import]
+    Step4 --> BrokenJira([Jira with Tasks<br/>⚠️ Broken hierarchy])
+    BrokenJira --> Step5[5. Linear Import]
     Step5 --> Linear([Linear with Tasks])
     Linear --> Step6[6. Link parent/child<br/>link-parent-and-child.sh]
-    Step6 --> LinearDone([Linear with hierarchy])
-    LinearDone --> Step7[7. Export back to Jira]
-    Step7 --> JiraBack([Jira with Tasks])
-    JiraBack --> Step8[8. Convert Tasks to Epics<br/>convert-task-to-epic.sh]
+    Step6 --> LinearDone([Linear with hierarchy<br/>✓ Ready to use])
+    LinearDone -.-> Step7[7. Restore Jira hierarchy]
+    Step7 --> Step8[8. Convert Tasks to Epics<br/>convert-task-to-epic.sh]
     Step8 --> Step9[9. Re-link Epics/children<br/>link-children-to-epic.sh]
-    Step9 --> End([End: Jira with Epics])
+    Step9 --> End([End: Jira with Epics<br/>✓ Restored])
 
     style Start fill:#e1f5ff
+    style BrokenJira fill:#ffe6e6
     style Linear fill:#fff4e6
-    style LinearDone fill:#fff4e6
-    style JiraBack fill:#e1f5ff
-    style End fill:#e1f5ff
+    style LinearDone fill:#e8f5e9
+    style End fill:#e8f5e9
     style Step5 fill:#f0f0f0
     style Step7 fill:#f0f0f0
 ```
