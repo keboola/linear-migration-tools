@@ -16,7 +16,7 @@ Helper scripts for migrating issues between Jira and Linear. These tools use the
 
 Follow these steps to migrate issues from Jira to Linear and back:
 
-**Phase 1: Jira → Linear Migration**
+**Phase 1a: Prepare Jira for Migration**
 
 ```mermaid
 graph LR
@@ -25,13 +25,19 @@ graph LR
     Step2 --> Step3[3. Add parent labels]
     Step3 --> Step4[4. Convert Epics to Tasks]
     Step4 --> BrokenJira([Jira: Tasks<br/>⚠️ Broken hierarchy])
-    BrokenJira --> Step5[5. Linear Import]
-    Step5 --> Linear([Linear: Tasks])
-    Linear --> Step6[6. Link parent/child]
-    Step6 --> LinearDone([Linear<br/>✓ Ready to use])
 
     style Start fill:#e1f5ff,stroke:#0288d1
     style BrokenJira fill:#ffe6e6,stroke:#d32f2f
+```
+
+**Phase 1b: Setup Linear**
+
+```mermaid
+graph LR
+    Step5[5. Linear Import] --> Linear([Linear: Tasks])
+    Linear --> Step6[6. Link parent/child]
+    Step6 --> LinearDone([Linear<br/>✓ Ready to use])
+
     style Linear fill:#fff4e6,stroke:#f57c00
     style LinearDone fill:#e8f5e9,stroke:#388e3c
     style Step5 fill:#f5f5f5,stroke:#757575
