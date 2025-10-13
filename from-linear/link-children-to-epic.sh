@@ -40,6 +40,20 @@ check_acli_installed() {
     fi
 }
 
+check_jira_config() {
+    if [ -z "$JIRA_USER_EMAIL" ]; then
+        echo "Error: JIRA_USER_EMAIL environment variable is not set"
+        echo "Set it with: export JIRA_USER_EMAIL=your-email@example.com"
+        exit 1
+    fi
+
+    if [ -z "$JIRA_API_TOKEN" ]; then
+        echo "Error: JIRA_API_TOKEN environment variable is not set"
+        echo "Get your API token from: https://id.atlassian.com/manage-profile/security/api-tokens"
+        exit 1
+    fi
+}
+
 get_epics_in_project() {
     local project_key="$1"
     local epics=$(acli jira workitem search --jql "project = $project_key AND issuetype = Epic and labels IN (IssueTypeEpic)" --paginate --json | jq -r '.[].key')
@@ -109,6 +123,7 @@ process_epic() {
 
 main() {
     check_acli_installed
+    check_jira_config
 
     epics=$(get_epics_in_project "$PROJECT_KEY")
 
