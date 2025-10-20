@@ -1,6 +1,6 @@
-# linear-migration-tools
+# Linear Migration Tools
 
-Helper scripts for migrating issues between Jira and Linear. These tools use the Atlassian CLI (`acli`) and Jira REST API to manipulate Jira issues during migration processes.
+Helper scripts for migrating issues between Jira and Linear. These tools use the Atlassian CLI (`acli`), Jira REST API, and Linear GraphQL API to manipulate issues during migration processes.
 
 ## Prerequisites
 
