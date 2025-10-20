@@ -7,8 +7,9 @@ Helper scripts for migrating issues between Jira and Linear. These tools use the
 - [Atlassian CLI (acli)](https://developer.atlassian.com/cloud/acli/installation/) must be installed and configured
 - `jq` for JSON parsing
 - For scripts using Jira REST API, set these environment variables:
+  - `JIRA_HOST` (e.g., `your-domain.atlassian.net`)
   - `JIRA_USER_EMAIL`
-  - `JIRA_API_TOKEN`
+  - `JIRA_API_TOKEN` (get it from https://id.atlassian.com/manage-profile/security/api-tokens)
 - For scripts using Linear API, set this environment variable:
   - `LINEAR_API_KEY` (get it from https://linear.app/settings/api)
 
@@ -181,7 +182,10 @@ Usage:
 ./fix-jira/link-children-to-epic.sh <PROJECT-KEY> [--dry-run]
 ```
 
-**Note**: This script requires environment variables for Jira REST API authentication.
+**Note**: This script requires environment variables for Jira REST API authentication:
+- `JIRA_HOST` - Your Jira domain (e.g., `your-domain.atlassian.net`)
+- `JIRA_USER_EMAIL` - Your Jira user email
+- `JIRA_API_TOKEN` - Your Jira API token
 
 ## Common Options
 
@@ -201,3 +205,7 @@ Common customizations:
 - Add additional label filters
 - Filter by assignee, reporter, or other fields
 - Adjust date ranges
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

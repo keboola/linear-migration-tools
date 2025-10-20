@@ -41,6 +41,12 @@ check_acli_installed() {
 }
 
 check_jira_config() {
+    if [ -z "$JIRA_HOST" ]; then
+        echo "Error: JIRA_HOST environment variable is not set"
+        echo "Set it with: export JIRA_HOST=your-domain.atlassian.net"
+        exit 1
+    fi
+
     if [ -z "$JIRA_USER_EMAIL" ]; then
         echo "Error: JIRA_USER_EMAIL environment variable is not set"
         echo "Set it with: export JIRA_USER_EMAIL=your-email@example.com"
@@ -76,7 +82,7 @@ set_epic_link() {
     else
         # Use Jira REST API to set parent field
         local auth=$(echo -n "${JIRA_USER_EMAIL}:${JIRA_API_TOKEN}" | base64)
-        local url="https://keboola.atlassian.net/rest/api/3/issue/${child_key}"
+        local url="https://${JIRA_HOST}/rest/api/3/issue/${child_key}"
         local json_payload="{\"fields\":{\"parent\":{\"key\":\"${epic_key}\"}}}"
 
         local http_code=$(curl -s -w "%{http_code}" -o /tmp/jira_response_$$.json -X PUT \
