@@ -30,38 +30,44 @@ graph LR
     style BrokenJira fill:#ffe6e6,stroke:#d32f2f
 ```
 
-**Phase 1b: Setup Linear**
+**Phase 1b: Import to Linear**
 
 ```mermaid
 graph LR
-    Step5[5. Linear Import] --> Linear([Linear: Tasks])
-    Linear --> Step6[6. Link parent/child]
-    Step6 --> LinearDone([Linear<br/>✓ Ready to use])
+    Step5[5. Linear Import] --> LinearDone([Linear: Tasks<br/>⚠️ Broken hierarchy])
 
-    style Linear fill:#fff4e6,stroke:#f57c00
-    style LinearDone fill:#e8f5e9,stroke:#388e3c
+    style LinearDone fill:#ffe6e6,stroke:#d32f2f
     style Step5 fill:#f5f5f5,stroke:#757575
 ```
 
-**Phase 2: Restore Jira Hierarchy (Optional)**
+**Phase 2: Fix Linear Hierarchy**
 
 ```mermaid
 graph LR
-    Start2([Broken Jira]) --> Step7[7. Restore Jira hierarchy]
-    Step7 --> Step8[8. Convert Tasks to Epics]
-    Step8 --> Step9[9. Re-link Epics & children]
-    Step9 --> End([Jira with Epics<br/>✓ Restored])
+    Start2([Linear: Broken hierarchy]) --> Step6[6. Link parent/child]
+    Step6 --> End([Linear<br/>✓ Ready to use])
 
     style Start2 fill:#ffe6e6,stroke:#d32f2f
     style End fill:#e8f5e9,stroke:#388e3c
-    style Step7 fill:#f5f5f5,stroke:#757575
+```
+
+**Phase 3: Restore Jira Hierarchy (Optional)**
+
+```mermaid
+graph LR
+    Start3([Broken Jira]) --> Step7[7. Convert Tasks to Epics]
+    Step7 --> Step8[8. Re-link Epics & children]
+    Step8 --> End2([Jira with Epics<br/>✓ Restored])
+
+    style Start3 fill:#ffe6e6,stroke:#d32f2f
+    style End2 fill:#e8f5e9,stroke:#388e3c
 ```
 
 ### Phase 1: Prepare Jira issues for Linear migration
 
 1. **Label Bug issues** (optional but recommended):
    ```bash
-   ./to-linear/label-bugs.sh <PROJECT-KEY> [--dry-run]
+   ./prepare-jira/label-bugs.sh <PROJECT-KEY> [--dry-run]
    ```
    Adds "Bug" labels to Bug issue types to preserve type information.
 
@@ -70,44 +76,46 @@ graph LR
 
 3. **Add parent relationship labels**:
    ```bash
-   ./to-linear/add-parent-labels.sh <PROJECT-KEY> [--dry-run]
+   ./prepare-jira/add-parent-labels.sh <PROJECT-KEY> [--dry-run]
    ```
    Adds `parentIs<EPIC-KEY>` labels to child issues to preserve Epic relationships.
 
 4. **Convert Epics to Tasks**:
    ```bash
-   ./to-linear/convert-epic-to-task.sh <PROJECT-KEY> [--dry-run]
+   ./prepare-jira/convert-epic-to-task.sh <PROJECT-KEY> [--dry-run]
    ```
    Converts Epic issues to Task type (Linear doesn't support Epics).
 
 5. **Run Linear import**:
    Use Linear's Jira import feature to migrate the issues.
 
+### Phase 2: Fix Linear hierarchy
+
 6. **Link parent and child issues in Linear**:
    ```bash
-   ./to-linear/link-parent-and-child.sh <TEAM-KEY> [--dry-run]
+   ./fix-linear/link-parent-and-child.sh <TEAM-KEY> [--dry-run]
    ```
    Links child issues to parent issues in Linear using the `parentIs` labels.
 
-### Phase 2: Restore Epic hierarchy in Jira
+### Phase 3: Restore Epic hierarchy in Jira
 
 7. **Convert Tasks back to Epics**:
    ```bash
-   ./from-linear/convert-task-to-epic.sh <PROJECT-KEY> [--dry-run]
+   ./fix-jira/convert-task-to-epic.sh <PROJECT-KEY> [--dry-run]
    ```
    Converts issues labeled with `IssueTypeEpic` back to Epic type.
 
 8. **Re-link Epics and children**:
    ```bash
-   ./from-linear/link-children-to-epic.sh <PROJECT-KEY> [--dry-run]
+   ./fix-jira/link-children-to-epic.sh <PROJECT-KEY> [--dry-run]
    ```
    Links child issues back to their parent Epics using the `parentIs` labels.
 
 ## Tools
 
-### to-linear/
+### prepare-jira/
 
-Scripts for preparing Jira issues before migrating TO Linear:
+Scripts for preparing Jira issues before migrating to Linear:
 
 #### `label-bugs.sh`
 **Purpose**: Adds "Bug" labels to all Bug issue types that don't already have bug labels
@@ -115,7 +123,7 @@ Scripts for preparing Jira issues before migrating TO Linear:
 
 Usage:
 ```bash
-./to-linear/label-bugs.sh <PROJECT-KEY> [--dry-run]
+./prepare-jira/label-bugs.sh <PROJECT-KEY> [--dry-run]
 ```
 
 #### `add-parent-labels.sh`
@@ -124,7 +132,7 @@ Usage:
 
 Usage:
 ```bash
-./to-linear/add-parent-labels.sh <PROJECT-KEY> [--dry-run]
+./prepare-jira/add-parent-labels.sh <PROJECT-KEY> [--dry-run]
 ```
 
 #### `convert-epic-to-task.sh`
@@ -133,8 +141,12 @@ Usage:
 
 Usage:
 ```bash
-./to-linear/convert-epic-to-task.sh <PROJECT-KEY> [--dry-run]
+./prepare-jira/convert-epic-to-task.sh <PROJECT-KEY> [--dry-run]
 ```
+
+### fix-linear/
+
+Scripts for fixing Linear hierarchy after import:
 
 #### `link-parent-and-child.sh`
 **Purpose**: Links child issues to parent issues in Linear using the GraphQL API
@@ -142,14 +154,14 @@ Usage:
 
 Usage:
 ```bash
-./to-linear/link-parent-and-child.sh <TEAM-KEY> [--dry-run]
+./fix-linear/link-parent-and-child.sh <TEAM-KEY> [--dry-run]
 ```
 
 **Note**: This script requires the `LINEAR_API_KEY` environment variable for Linear API authentication.
 
-### from-linear/
+### fix-jira/
 
-Scripts for processing issues migrated FROM Linear back to Jira:
+Scripts for restoring Jira hierarchy after Linear migration:
 
 #### `convert-task-to-epic.sh`
 **Purpose**: Converts issues labeled with "IssueTypeEpic" back to Epic issue type
@@ -157,7 +169,7 @@ Scripts for processing issues migrated FROM Linear back to Jira:
 
 Usage:
 ```bash
-./from-linear/convert-task-to-epic.sh <PROJECT-KEY> [--dry-run]
+./fix-jira/convert-task-to-epic.sh <PROJECT-KEY> [--dry-run]
 ```
 
 #### `link-children-to-epic.sh`
@@ -166,7 +178,7 @@ Usage:
 
 Usage:
 ```bash
-./from-linear/link-children-to-epic.sh <PROJECT-KEY> [--dry-run]
+./fix-jira/link-children-to-epic.sh <PROJECT-KEY> [--dry-run]
 ```
 
 **Note**: This script requires environment variables for Jira REST API authentication.
