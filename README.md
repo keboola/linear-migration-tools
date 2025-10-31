@@ -4,7 +4,7 @@ Helper scripts for migrating issues between Jira and Linear. These tools use the
 
 ## Prerequisites
 
-- [Atlassian CLI (acli)](https://developer.atlassian.com/cloud/acli/installation/) must be installed and configured
+- [Atlassian CLI (acli)](https://developer.atlassian.com/cloud/acli/installation/) must be installed and configured (`acli jira auth login`)
 - `jq` for JSON parsing
 - For scripts using Jira REST API, set these environment variables:
   - `JIRA_HOST` (e.g., `your-domain.atlassian.net`)
@@ -73,7 +73,10 @@ graph LR
    Adds "Bug" labels to Bug issue types to preserve type information.
 
 2. **Manually mark Epics** you want to migrate:
-   Add the label `IssueTypeEpic` to all Epic issues you want to include in the migration.
+   Add the label `IssueTypeEpic` to all Epic issues you want to include in the migration. e.g.:
+   ```bash
+   acli jira workitem edit --jql "project = PST AND issuetype = Epic" --labels "IssueTypeEpic"
+   ```
 
 3. **Add parent relationship labels**:
    ```bash
